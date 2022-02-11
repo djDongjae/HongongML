@@ -1,0 +1,66 @@
+#패션MNIST 데이터셋 불러오기 
+from tensorflow import keras
+(train_input, train_target), (test_input, test_target) =\
+  keras.datasets.fashion_mnist.load_data()
+  
+#훈련세트 검증세트 분리
+from sklearn.model_selection import train_test_split
+train_scaled = train_input / 255.0
+train_scaled = train_scaled.reshape(-1, 28*28)
+train_scaled, val_scaled, train_target, val_target = train_test_split(train_scaled, train_target, test_size=0.2, random_state=42)
+
+#은닉층과 출력층 만들기
+dense1 = keras.layers.Dense(100, activation='sigmoid', input_shape=(784,))
+dense2 = keras.layers.Dense(10, activation='softmax')
+
+#심층신경망 만들기
+model = keras.Sequential([dense1, dense2])
+
+#층에 대한 정보 출력
+model.summary()
+
+#Sequential 클래스 생성자 안에서 바로 Dense 클래스의 객체 만들기
+model = keras.Sequential([keras.layers.Dense(100, activation='sigmoid', input_shape=(784,)), keras.layers.Dense(10, activation='softmax', name='output')], name='패션 MNIST 모델')
+
+model.summary()
+
+#add() 메스드 호출하여 층 추가하기
+model = keras.Sequential()
+model.add(keras.layers.Dense(100, activation='sigmoid', input_shape=(784,)))
+model.add(keras.layers.Dense(10, activation='softmax'))
+
+model.summary()
+
+#모델 훈련하기
+model.compile(loss='sparse_categorical_crossentropy', metrics='accuracy')
+model.fit(train_scaled, train_target, epochs=5)
+
+#Flatten층 추가하기/첫 번째 층 렐루 함수 사용
+model = keras.Sequential()
+model.add(keras.layers.Flatten(input_shape=(28, 28)))
+model.add(keras.layers.Dense(100, activation='relu'))
+model.add(keras.layers.Dense(10, activation='softmax'))
+
+model.summary()
+
+#다시 훈련 데이터 준비하기 
+(train_input, train_target), (test_input, test_target) =\
+ keras.datasets.fashion_mnist.load_data()
+train_scaled = train_input / 255.0
+train_scaled, val_scaled, train_target, val_target = train_test_split(train_scaled, train_target, test_size=0.2, random_state=42)
+
+#모델 훈련하기
+model.compile(loss='sparse_categorical_crossentropy', metrics='accuracy')
+model.fit(train_scaled, train_target, epochs=5)
+
+#검증 세트 평가하기
+model.evaluate(val_scaled, val_target)
+
+#Adam 클래스의 매개변수 이용하여 훈련하기
+model = keras.Sequential()
+model.add(keras.layers.Flatten(input_shape=(28,28)))
+model.add(keras.layers.Dense(100, activation='relu'))
+model.add(keras.layers.Dense(10, activation='softmax'))
+
+model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics='accuracy')
+model.fit(train_scaled, train_target, epochs=5)
